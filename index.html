@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Élégance — Color Atelier</title>
+  
+  <!-- Manifest & PWA Meta -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#F7F6F2">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  
+  <!-- Google Fonts Sartoriali -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #F7F6F2;
+      --card-bg: rgba(255, 255, 255, 0.75);
+      --card-border: rgba(210, 205, 195, 0.4);
+      --text-main: #242220;
+      --text-muted: #7E7871;
+      --gold: #A68A56;
+      --gold-light: #E8E2D5;
+      --shadow: 0 12px 36px -8px rgba(36, 34, 32, 0.05);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      padding-top: env(safe-area-inset-top, 20px);
+      padding-bottom: env(safe-area-inset-bottom, 30px);
+      padding-left: 20px;
+      padding-right: 20px;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      text-align: center;
+      margin-top: 15px;
+      margin-bottom: 25px;
+    }
+
+    .brand-sub {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.3rem;
+      font-weight: 400;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    /* Base Palette Selector */
+    .section-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .palette-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .color-swatch-btn {
+      aspect-ratio: 1;
+      border-radius: 16px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 6px;
+    }
+
+    .color-swatch-btn span {
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      color: #fff;
+    }
+
+    .color-swatch-btn.light span {
+      color: #333;
+      text-shadow: none;
+    }
+
+    .color-swatch-btn.active {
+      transform: scale(1.06);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      border-color: var(--gold);
+    }
+
+    .color-swatch-btn.active::after {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 14px;
+      height: 14px;
+      background: var(--gold);
+      border-radius: 50%;
+      border: 2px solid var(--bg);
+    }
+
+    /* Selected State Ribbon */
+    .current-selection-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(12px);
+      border-radius: 14px;
+      padding: 10px 16px;
+      margin-bottom: 30px;
+    }
+
+    .selection-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.1);
+    }
+
+    .selection-text {
+      font-size: 0.85rem;
+      font-weight: 400;
+      color: var(--text-muted);
+    }
+
+    .selection-text strong {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    /* Outfits Section */
+    .results-container {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .set-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      transition: transform 0.4s ease, opacity 0.4s ease;
+      animation: fadeIn 0.5s ease-out backwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .set-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 14px;
+    }
+
+    .set-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem;
+      font-weight: 500;
+    }
+
+    .set-mood {
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    /* Mini Capsule / Color Preview Strip */
+    .capsule-strip {
+      display: flex;
+      height: 48px;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      border: 1px solid rgba(0,0,0,0.06);
+    }
+
+    .capsule-segment {
+      flex: 1;
+      height: 100%;
+      transition: flex 0.3s ease;
+    }
+
+    .capsule-segment:first-child {
+      flex: 1.2;
+    }
+
+    /* Detailed Swatches */
+    .swatches-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .swatch-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .swatch-item-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .swatch-circle {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,0,0,0.08);
+    }
+
+    .swatch-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .swatch-name {
+      font-size: 0.82rem;
+      font-weight: 500;
+    }
+
+    .swatch-role {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    .swatch-hex {
+      font-size: 0.72rem;
+      font-family: monospace;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="brand-sub">Atelier Cromático</div>
+      <h1>Élégance</h1>
+    </header>
+
+    <div class="section-label">
+      <span>Seleziona il capo base</span>
+      <span id="activeCount">Sartoriale</span>
+    </div>
+
+    <!-- Palette Swatches di Guardaroba -->
+    <div class="palette-grid" id="paletteGrid"></div>
+
+    <div class="current-selection-bar">
+      <div class="selection-dot" id="selectionDot"></div>
+      <div class="selection-text">Base: <strong id="selectionLabel">—</strong></div>
+    </div>
+
+    <div class="section-label">
+      <span>3 Armonie Suggerite (3 Colori)</span>
+      <span>Cromologia</span>
+    </div>
+
+    <!-- Combinazioni generate -->
+    <div class="results-container" id="resultsContainer"></div>
+  </div>
+
+  <script>
+    // Database Guardaroba sartoriale (Capsule Wardrobe)
+    const wardrobeColors = [
+      {
+        id: 'navy',
+        name: 'Blu Navy',
+        hex: '#1B263B',
+        light: false,
+        sets: [
+          {
+            title: "Old Money Elegance",
+            mood: "Classico Rigoroso",
+            colors: [
+              { name: "Cammello Chiaro", role: "Capospalla / Pantalone", hex: "#C69C6D" },
+              { name: "Bianco Seta", role: "Camicia / Maglia", hex: "#F8F7F2" },
+              { name: "Mogano / Cuoio", role: "Cintura & Calzature", hex: "#4A2818" }
+            ]
+          },
+          {
+            title: "Riviera Chic",
+            mood: "Contrasto Arioso",
+            colors: [
+              { name: "Terracotta Chiaro", role: "Pantaloni lino", hex: "#D9825B" },
+              { name: "Azzurro Polvere", role: "Camicia Oxford", hex: "#A8BFC9" },
+              { name: "Avorio Naturale", role: "Sneakers / Dettaglio", hex: "#EBE5D8" }
+            ]
+          },
+          {
+            title: "Quiet Monochrome",
+            mood: "Tonalità Rilassante",
+            colors: [
+              { name: "Grigio Ardesia", role: "Pantaloni sartoriali", hex: "#6C7A89" },
+              { name: "Borgogna Intenso", role: "Cravatta / Sciarpa", hex: "#5C1D24" },
+              { name: "Ghiaccio Freddo", role: "Top", hex: "#E1E6E8" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'camel',
+        name: 'Cammello',
+        hex: '#C69C6D',
+        light: false,
+        sets: [
+          {
+            title: "Pure Minimalist",
+            mood: "Quiet Luxury",
+            colors: [
+              { name: "Bianco Caldo", role: "Maglieria cashmere", hex: "#FAF8F5" },
+              { name: "Nero Ossidiana", role: "Pantaloni / Pantalone tailoring", hex: "#1C1B1A" },
+              { name: "Oro Satinato", role: "Dettagli in metallo", hex: "#C5A880" }
+            ]
+          },
+          {
+            title: "Tonal Earth",
+            mood: "Organico Naturale",
+            colors: [
+              { name: "Cioccolato Fondente", role: "Giacca / Stivaletti", hex: "#38251B" },
+              { name: "Sabbia Deserto", role: "Chino / Maglia", hex: "#E2D2B8" },
+              { name: "Verde Oliva Bosco", role: "Sciarpa o borsa", hex: "#4A5240" }
+            ]
+          },
+          {
+            title: "Urban Contrast",
+            mood: "Sofisticato Metropolitano",
+            colors: [
+              { name: "Azzurro Cielo", role: "Camicia cotone", hex: "#B4C8D8" },
+              { name: "Blu Notte", role: "Denim scuro o blazer", hex: "#1D2534" },
+              { name: "Cuoio Ambrato", role: "Scarpe mocassino", hex: "#8B4513" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'olive',
+        name: 'Verde Oliva',
+        hex: '#4F5846',
+        light: false,
+        sets: [
+          {
+            title: "Alpine Heritage",
+            mood: "Armonia Calda",
+            colors: [
+              { name: "Crema Vaniglia", role: "T-shirt o maglione", hex: "#F3EFE6" },
+              { name: "Marrone Tabacco", role: "Pantalone / Giubbotto", hex: "#634735" },
+              { name: "Ocra Bruciata", role: "Accessorio lana", hex: "#BF8237" }
+            ]
+          },
+          {
+            title: "Modern Minimal",
+            mood: "Contemporaneo Pulito",
+            colors: [
+              { name: "Nero Assoluto", role: "T-shirt o pantaloni", hex: "#171717" },
+              { name: "Grigio Perla Chiaro", role: "Giacca leggera", hex: "#D6D8D5" },
+              { name: "Argento Brunito", role: "Orologio / Occhiali", hex: "#8C8F91" }
+            ]
+          },
+          {
+            title: "Botanical Depth",
+            mood: "Tonalità Bosco",
+            colors: [
+              { name: "Beige Lino", role: "Pantaloni freschi", hex: "#D4C7B3" },
+              { name: "Bordeaux Profondo", role: "Calze o pochette", hex: "#4E1A23" },
+              { name: "Ecrù Naturale", role: "Fodera o camicia", hex: "#EAE6DD" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'charcoal',
+        name: 'Antracite',
+        hex: '#303234',
+        light: false,
+        sets: [
+          {
+            title: "Sartorial Power",
+            mood: "Business Luxury",
+            colors: [
+              { name: "Azzurro Egiziano", role: "Camicia rigata fine", hex: "#C7D8E6" },
+              { name: "Borgogna Velluto", role: "Maglia o cravatta", hex: "#5E2129" },
+              { name: "Nero Lucido", role: "Scarpe Oxford", hex: "#151515" }
+            ]
+          },
+          {
+            title: "Nordic Comfort",
+            mood: "Morbido & Discreto",
+            colors: [
+              { name: "Panna Cashmere", role: "Maglione collo alto", hex: "#F7F5F0" },
+              { name: "Rosa Cipria Cenere", role: "Foulard / Polo", hex: "#C9AEA7" },
+              { name: "Grigio Tortora", role: "Giacca decostruita", hex: "#8A847F" }
+            ]
+          },
+          {
+            title: "High Contrast Monocromo",
+            mood: "Architetturale",
+            colors: [
+              { name: "Bianco Ottico", role: "T-shirt o sneakers", hex: "#FFFFFF" },
+              { name: "Verde Salvia Polvere", role: "Cardigan o trench", hex: "#8F998A" },
+              { name: "Peltro Satinato", role: "Dettagli fibbia", hex: "#63666A" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'burgundy',
+        name: 'Bordeaux',
+        hex: '#581D26',
+        light: false,
+        sets: [
+          {
+            title: "Club House",
+            mood: "Tradizionale Nobile",
+            colors: [
+              { name: "Blu Navy Cupo", role: "Blazer strutturato", hex: "#161D2B" },
+              { name: "Grigio Flanella Chiaro", role: "Pantalone lana", hex: "#B8B9B7" },
+              { name: "Cuoio Brandy", role: "Cintura e stringate", hex: "#7E4826" }
+            ]
+          },
+          {
+            title: "Chic Autunnale",
+            mood: "Calore Raffinato",
+            colors: [
+              { name: "Cammello Tostato", role: "Cappotto oversize", hex: "#BA8958" },
+              { name: "Champagne / Avorio", role: "Sottogiacca in seta", hex: "#F5F0E4" },
+              { name: "Verde Foresta Scuro", role: "Accessorio a contrasto", hex: "#233327" }
+            ]
+          },
+          {
+            title: "Velluto Notturno",
+            mood: "Serale Esclusivo",
+            colors: [
+              { name: "Nero Fumo", role: "Pantaloni affusolati", hex: "#191819" },
+              { name: "Grigio Perla Metallico", role: "Gioielli o pochette", hex: "#C7C8C9" },
+              { name: "Lilla Cenere", role: "Camicia morbida", hex: "#C1B3BD" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'powderblue',
+        name: 'Azzurro',
+        hex: '#A5BDCB',
+        light: true,
+        sets: [
+          {
+            title: "Coastline Sunset",
+            mood: "Mediterraneo Lussuoso",
+            colors: [
+              { name: "Marrone Cioccolato", role: "Pantalone lino o giacca", hex: "#3F2A21" },
+              { name: "Bianco Burro", role: "T-shirt basica", hex: "#FAF8F2" },
+              { name: "Terracotta Polverosa", role: "Calzature estive", hex: "#B8674D" }
+            ]
+          },
+          {
+            title: "Tailored Crisp",
+            mood: "Fresco Sartoriale",
+            colors: [
+              { name: "Blu Navy Reale", role: "Giacca monopetto", hex: "#1B283E" },
+              { name: "Beige Corda", role: "Pantaloni Chino", hex: "#D4C8B5" },
+              { name: "Cuoio Chiaro Naturale", role: "Dettaglio pelle", hex: "#A87247" }
+            ]
+          },
+          {
+            title: "Pastel Harmony",
+            mood: "Rilassato Armonico",
+            colors: [
+              { name: "Verde Salvia Chiaro", role: "Over-shirt", hex: "#9EB09E" },
+              { name: "Grigio Melange Dolce", role: "Felpa cachemire", hex: "#D0D2D3" },
+              { name: "Avorio Puro", role: "Sneakers lusso", hex: "#F3EFE6" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'ecru',
+        name: 'Avorio / Panna',
+        hex: '#EDE8DE',
+        light: true,
+        sets: [
+          {
+            title: "Monochrome Warmth",
+            mood: "Lusso Silenzioso",
+            colors: [
+              { name: "Cammello Sabbia", role: "Cardigan avvolgente", hex: "#BF9972" },
+              { name: "Bianco Gesso", role: "T-shirt o jeans", hex: "#FAF9F6" },
+              { name: "Marrone Castagna", role: "Mocassini scamosciati", hex: "#523625" }
+            ]
+          },
+          {
+            title: "Modern Botanical",
+            mood: "Elegante Disinvolto",
+            colors: [
+              { name: "Verde Oliva Bruciato", role: "Pantaloni cargo lusso", hex: "#525745" },
+              { name: "Nero Satinato", role: "Giacca / Occhiali", hex: "#202020" },
+              { name: "Ocra Miele", role: "Bandana o calze", hex: "#C7954B" }
+            ]
+          },
+          {
+            title: "Ocean Breeze",
+            mood: "Distinto Nautico",
+            colors: [
+              { name: "Blu Notte Fondo", role: "Maglia rigata o blazer", hex: "#18202F" },
+              { name: "Celeste Polvere", role: "Sciarpa leggera", hex: "#ADC3D0" },
+              { name: "Cuoio Naturale", role: "Cintura intrecciata", hex: "#945F38" }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'black',
+        name: 'Nero Carbone',
+        hex: '#181716',
+        light: false,
+        sets: [
+          {
+            title: "Absolute Chic",
+            mood: "Intramontabile Minimal",
+            colors: [
+              { name: "Bianco Seta Assoluto", role: "Camicia o dolcevita", hex: "#FFFFFF" },
+              { name: "Grigio Chiaro Fumoso", role: "Soprabito sartoriale", hex: "#C4C6C8" },
+              { name: "Argento Puro", role: "Gioielli o gemelli", hex: "#A8ABB0" }
+            ]
+          },
+          {
+            title: "Warm Contrast",
+            mood: "Audace & Nobile",
+            colors: [
+              { name: "Cammello Dorato", role: "Cappotto lungo", hex: "#B88E5B" },
+              { name: "Crema Ecrù", role: "Maglione collo alto", hex: "#EEE9DC" },
+              { name: "Bordeaux Scuro", role: "Borsa / Valigia", hex: "#48151D" }
+            ]
+          },
+          {
+            title: "Dark Olive Shadow",
+            mood: "Atmosfera Notturna",
+            colors: [
+              { name: "Verde Militare Cupo", role: "Giacca da campo sartoriale", hex: "#3A3F33" },
+              { name: "Grigio Ardesia Scuro", role: "Pantalone relaxed", hex: "#47494B" },
+              { name: "Cuoio Nero Martellato", role: "Stivali chelsea", hex: "#1C1C1D" }
+            ]
+          }
+        ]
+      }
+    ];
+
+    let selectedColorIndex = 0;
+
+    function renderSwatches() {
+      const grid = document.getElementById('paletteGrid');
+      grid.innerHTML = '';
+
+      wardrobeColors.forEach((color, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `color-swatch-btn ${color.light ? 'light' : ''} ${idx === selectedColorIndex ? 'active' : ''}`;
+        btn.style.backgroundColor = color.hex;
+        btn.innerHTML = `<span>${color.name}</span>`;
+        
+        btn.onclick = () => {
+          // Pixel 8 Haptic Feedback
+          if ('vibrate' in navigator) {
+            navigator.vibrate(15);
+          }
+          selectedColorIndex = idx;
+          renderSwatches();
+          renderOutfits();
+        };
+
+        grid.appendChild(btn);
+      });
+    }
+
+    function renderOutfits() {
+      const current = wardrobeColors[selectedColorIndex];
+      const container = document.getElementById('resultsContainer');
+      const dot = document.getElementById('selectionDot');
+      const label = document.getElementById('selectionLabel');
+
+      dot.style.backgroundColor = current.hex;
+      label.innerText = current.name;
+
+      container.innerHTML = '';
+
+      current.sets.forEach((set, sIdx) => {
+        const card = document.createElement('div');
+        card.className = 'set-card';
+        card.style.animationDelay = `${sIdx * 0.08}s`;
+
+        const swatchesHtml = set.colors.map(c => `
+          <div class="swatch-item">
+            <div class="swatch-item-left">
+              <div class="swatch-circle" style="background-color: ${c.hex};"></div>
+              <div class="swatch-info">
+                <span class="swatch-name">${c.name}</span>
+                <span class="swatch-role">${c.role}</span>
+              </div>
+            </div>
+            <span class="swatch-hex">${c.hex}</span>
+          </div>
+        `).join('');
+
+        const previewSegmentsHtml = `
+          <div class="capsule-segment" style="background-color: ${current.hex};" title="Base: ${current.name}"></div>
+          ${set.colors.map(c => `
+            <div class="capsule-segment" style="background-color: ${c.hex};" title="${c.name}"></div>
+          `).join('')}
+        `;
+
+        card.innerHTML = `
+          <div class="set-header">
+            <div class="set-title">${set.title}</div>
+            <div class="set-mood">${set.mood}</div>
+          </div>
+          <div class="capsule-strip">
+            ${previewSegmentsHtml}
+          </div>
+          <div class="swatches-list">
+            ${swatchesHtml}
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Inizializzazione PWA e Service Worker
+    window.addEventListener('DOMContentLoaded', () => {
+      renderSwatches();
+      renderOutfits();
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js').catch(err => {
+          console.log('SW registration fallback:', err);
+        });
+      }
+    });
+  </script>
+</body>
+</html>

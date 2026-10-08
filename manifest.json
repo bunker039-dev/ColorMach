@@ -1,0 +1,18 @@
+{
+  "name": "Élégance — Color Atelier",
+  "short_name": "Élégance",
+  "description": "Consulente cromatico luxury per guardaroba",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#F7F6F2",
+  "theme_color": "#F7F6F2",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%23A68A56'><rect width='512' height='512' rx='120' fill='%23F7F6F2'/><circle cx='256' cy='256' r='140' stroke='%23A68A56' stroke-width='16' fill='none'/><circle cx='256' cy='180' r='50' fill='%231B263B'/><circle cx='190' cy='300' r='50' fill='%23C69C6D'/><circle cx='322' cy='300' r='50' fill='%234F5846'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
